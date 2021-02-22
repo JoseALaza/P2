@@ -1,5 +1,9 @@
 import logo from './logo.svg';
 import './App.css';
+import React, { useEffect, useState, useRef } from 'react';
+import io from 'socket.io-client';
+
+const socket = io();
 
 function App() {
   return (
