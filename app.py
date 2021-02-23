@@ -14,6 +14,8 @@ socketio = SocketIO(
     manage_session=False
 )
 
+userQueue = []
+
 @app.route('/', defaults={"filename": "index.html"})
 @app.route('/<path:filename>')
 def index(filename):
@@ -21,11 +23,21 @@ def index(filename):
 
 @socketio.on('userLogin')
 def on_login(userInfo):
-    print('User Login!')
+    userQueue.append(userInfo)
+    
+    socketio.emit('usernameAdd',userInfo)
+    socketio.emit('playerDefine',userQueue[0:2])
+    
+    print('User Login!', userInfo)
 
 @socketio.on('userLogout')
 def on_logout(userInfo):
-    print('User Logout!')
+    userQueue.pop(userQueue.index(userInfo))
+    
+    socketio.emit('usernameRemove',userInfo)
+    socketio.emit('playerDefine',userQueue[0:2])
+    
+    print('User Logout!', userInfo)
 
 socketio.run(
     app,

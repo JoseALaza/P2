@@ -56,7 +56,8 @@ function App() {
   }, []);
   
   // Listening for the server playerDefine response from server updating allowed players and spectators.
-  // (Needs to be checked for errors as it could update twice for self user)
+  // Should be updated based on everytime someone logs in and logs out.
+  // (Needs to be checked for errors as it could update twice for self user or may not update for self)
   useEffect(() => {
     socket.on('playerDefine', (data) => { // Listening for playerDefine from server
       console.log('Players allowed received!');
