@@ -6,6 +6,8 @@ const socket = io();
 
 export function PlayerBoardCreate() {
 
+    const [tieCounter,setTie] = useState(0);
+    
     // Serves as a blank board that will only be used once
     const boardBase = ['', '', '', '', '', '', '', '', ''];
 
@@ -43,11 +45,16 @@ export function PlayerBoardCreate() {
         ];
 
         // Loop will go through the array lines and cross check with the array squares to  determine a winner
-        for (let i = 0; i < lines.length; i++)
+        for (let i = 0; i < lines.length; i++) {
+            const [a, b, c] = lines[i];
+            if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+                return squares[a];
+            }
+        }
 
-            // Default returns null if there is no winner yet or a tie
-            // needs to account for a tie or create a seperate function
-            return null;
+        // Default returns null if there is no winner yet or a tie
+        // needs to account for a tie or create a seperate function
+        return null;
     }
 
     // onClickSquare is passed down to the tiles and is the main driver of sending and receiving playerMoves
@@ -60,7 +67,8 @@ export function PlayerBoardCreate() {
         if (calculateWinner(boardCopy) || boardCopy[a.target.id]) {
             return;
         }
-
+        
+        setTie(tieCounter+1);
         // Gets the tile index from the current tile and changes the value based on whose move it is.
         // Finalizes the move by overwriting the board.
         boardCopy[a.target.id] = playerChange(player);
@@ -85,7 +93,9 @@ export function PlayerBoardCreate() {
                 console.log('IN WINNER DETECT', calculateWinner(boardCopy), boardCopy[data.Position]);
                 return;
             }
-
+            
+            setTie(tieCounter+1);
+            
             console.log('Before', player);
             // Similiar to onClickSquare, updates the sent board with the move made by player
             // May need to change as the logic points to the fact that the board does not actually change
@@ -98,21 +108,31 @@ export function PlayerBoardCreate() {
         });
     });
 
+    console.log('TIE COUNTER:  ', tieCounter);
     // Accounts for the winner message or provides the satus of whose turn it is
     const winner = calculateWinner(board);
     let status;
     if (winner) {
         status = 'Winner: ' + winner;
+        // setTie(0);
+        console.log('Player - Winner');
+    }
+    else if(tieCounter == 9) {
+        status = 'Tie';
+        // setTie(0);
+        console.log('Player - Tie');
     }
     else {
         status = 'Next player: ' + player;
+        // setTie(tieCounter+1);
+        console.log('Player - Next');
     }
 
 
     return (
         <div>
             <h1>{status}</h1>
-            <div class = "board" >
+            <div className = "board" >
                 { board.map((item, val) => <Square key={val} idx={val} val={item} onClick={onClickSquare}/>) }
             </div>
         </div>
@@ -121,6 +141,9 @@ export function PlayerBoardCreate() {
 }
 
 export function SpectatorBoardCreate() {
+    
+    const [tieCounter,setTie] = useState(0);
+
     // Serves as a blank board that will only be used once
     const boardBase = ['', '', '', '', '', '', '', '', ''];
 
@@ -145,11 +168,15 @@ export function SpectatorBoardCreate() {
         ];
 
         // Loop will go through the array lines and cross check with the array squares to  determine a winner
-        for (let i = 0; i < lines.length; i++)
-
-            // Default returns null if there is no winner yet or a tie
-            // needs to account for a tie or create a seperate function
-            return null;
+        for (let i = 0; i < lines.length; i++) {
+            const [a, b, c] = lines[i];
+            if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+                return squares[a];
+            }
+        }
+        // Default returns null if there is no winner yet or a tie
+        // needs to account for a tie or create a seperate function
+        return null;
     }
 
     // Updates local board storage on connect and any other update that comes in
@@ -176,7 +203,7 @@ export function SpectatorBoardCreate() {
                 // boardCopy[dataCopy.Position] = dataCopy.Player;
 
                 // Changes to opposite based on received player data to update status in render
-                setPlayer(dataCopy.Player == 'X' ? 'O' : 'X')
+                setPlayer(dataCopy.Player == 'X' ? 'O' : 'X');
 
                 // Finalizes change by changing the rerendiring the local board of the receiving client
                 setBoard(prevBoard => dataCopy.Board);
@@ -184,14 +211,24 @@ export function SpectatorBoardCreate() {
         });
     });
 
+    console.log('TIE COUNTER:  ', tieCounter);
     // Accounts for the winner message or provides the satus of whose turn it is
     const winner = calculateWinner(board);
     let status;
     if (winner) {
         status = 'Winner: ' + winner;
+        // setTie(0);
+        console.log('Spec-Winner');
+    }
+    else if (tieCounter == 9) {
+        status = 'Tie';
+        // setTie(0);
+        console.log('Spec-Tie');
     }
     else {
         status = 'Next player: ' + player;
+        // setTie(tieCounter+1);
+        console.log('Spec-Next');
     }
 
 
