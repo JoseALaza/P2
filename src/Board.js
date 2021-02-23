@@ -12,10 +12,10 @@ const [board, setBoard] = useState(boardBase);
 
 // Creates a player state to determine who's turn it is.(X is default player1)
 // Still needs work as to determine if the player is allowed to go
-const [player, setPlayer] = useState('X')
+const [player, setPlayer] = useState('X');
 
 export function playerBoardCreate() {
-    
+
     // playerChange serves as a switch in order to give the other player their turn
     function playerChange(ply) {
         if (ply == 'O') {
@@ -27,7 +27,7 @@ export function playerBoardCreate() {
             return player; // Returns X
         }
     }
-    
+
     // calculateWinner returns a Winner output based on the placement of pieces
     function calculateWinner(squares) {
         // Array with all possible positions for a winner
@@ -41,19 +41,19 @@ export function playerBoardCreate() {
             [0, 4, 8],
             [2, 4, 6],
         ];
-        
+
         // Loop will go through the array lines and cross check with the array squares to  determine a winner
-        for (let i = 0; i < lines.length; i++) 
-        
-        // Default returns null if there is no winner yet or a tie
-        // needs to account for a tie or create a seperate function
-        return null;
+        for (let i = 0; i < lines.length; i++)
+
+            // Default returns null if there is no winner yet or a tie
+            // needs to account for a tie or create a seperate function
+            return null;
     }
-    
+
     // onClickSquare is passed down to the tiles and is the main driver of sending and receiving playerMoves
     function onClickSquare(a) {
         // Creates a copy of the current boardState so that it can be subject to change
-        let boardCopy = JSON.parse(JSON.stringify(board))
+        let boardCopy = JSON.parse(JSON.stringify(board));
 
         // Exits when a winner is found not commiting to the change the user would have made
         // May need to move location of this if there is an error detecting winner/tie
@@ -65,20 +65,20 @@ export function playerBoardCreate() {
         // Finalizes the move by overwriting the board.
         boardCopy[a.target.id] = playerChange(player);
         setBoard(prevBoard => boardCopy);
-        
+
         // Sends move made by player to server with the player that made the move, tile index, and the board after change
         socket.emit('playerMove', { 'Player': player, 'Position': parseInt(a.target.id), 'Board': boardCopy });
     }
-    
+
     // Listens for player move updates sent from the onClickSquare function
     useEffect(() => {
-        socket.on('playerUpdate', (data) => { // Listens for playerUpdate from server
+        socket.on('boardUpdate', (data) => { // Listens for boardUpdate from server
             console.log('Player details received!');
-            
+
             // Creates a copy of the received data
             let boardCopy = JSON.parse(JSON.stringify(data.Board));
             console.log(data, boardCopy);
-            
+
             // Exits when a winner is found not commiting to the change the user would have made
             // May need to move location of this if there is an error detecting winner/tie
             if (calculateWinner(boardCopy) || boardCopy[data.Position]) {
@@ -91,12 +91,12 @@ export function playerBoardCreate() {
             // Iffy playerChange logic
             boardCopy[data.Position] = playerChange(data.Player);
             console.log('After', player);
-            
+
             // Finalizes change by changing the rerendiring the local board of the receiving client
             setBoard(prevBoard => boardCopy);
         });
     });
-    
+
     // Accounts for the winner message or provides the satus of whose turn it is
     const winner = calculateWinner(board);
     let status;
@@ -107,7 +107,7 @@ export function playerBoardCreate() {
         status = 'Next player: ' + player;
     }
 
-    
+
     return (
         <div>
             <h1>{status}</h1>
