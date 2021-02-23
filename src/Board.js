@@ -15,7 +15,99 @@ const [board, setBoard] = useState(boardBase);
 const [player, setPlayer] = useState('X')
 
 export function playerBoardCreate() {
+    
+    // playerChange serves as a switch in order to give the other player their turn
+    function playerChange(ply) {
+        if (ply == 'O') {
+            setPlayer('X'); // Changes the player to X once O goes
+            return player; // Returns O
+        }
+        else if (ply == 'X') {
+            setPlayer('O'); // Changes the player to O once X goes
+            return player; // Returns X
+        }
+    }
+    
+    // calculateWinner returns a Winner output based on the placement of pieces
+    function calculateWinner(squares) {
+        // Array with all possible positions for a winner
+        const lines = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6],
+        ];
+        
+        // Loop will go through the array lines and cross check with the array squares to  determine a winner
+        for (let i = 0; i < lines.length; i++) 
+        
+        // Default returns null if there is no winner yet or a tie
+        // needs to account for a tie or create a seperate function
+        return null;
+    }
+    
+    // onClickSquare is passed down to the tiles and is the main driver of sending and receiving playerMoves
+    function onClickSquare(a) {
+        // Creates a copy of the current boardState so that it can be subject to change
+        let boardCopy = JSON.parse(JSON.stringify(board))
 
+        // Exits when a winner is found not commiting to the change the user would have made
+        // May need to move location of this if there is an error detecting winner/tie
+        if (calculateWinner(boardCopy) || boardCopy[a.target.id]) {
+            return;
+        }
+
+        // Gets the tile index from the current tile and changes the value based on whose move it is.
+        // Finalizes the move by overwriting the board.
+        boardCopy[a.target.id] = playerChange(player);
+        setBoard(prevBoard => boardCopy);
+        
+        // Sends move made by player to server with the player that made the move, tile index, and the board after change
+        socket.emit('playerMove', { 'Player': player, 'Position': parseInt(a.target.id), 'Board': boardCopy });
+    }
+    
+    // Listens for player move updates sent from the onClickSquare function
+    useEffect(() => {
+        socket.on('playerUpdate', (data) => { // Listens for playerUpdate from server
+            console.log('Player details received!');
+            
+            // Creates a copy of the received data
+            let boardCopy = JSON.parse(JSON.stringify(data.Board));
+            console.log(data, boardCopy);
+            
+            // Exits when a winner is found not commiting to the change the user would have made
+            // May need to move location of this if there is an error detecting winner/tie
+            if (calculateWinner(boardCopy) || boardCopy[data.Position]) {
+                return;
+            }
+
+            console.log('Before', player);
+            // Similiar to onClickSquare, updates the sent board with the move made by player
+            // May need to change as the logic points to the fact that the board does not actually change
+            // Iffy playerChange logic
+            boardCopy[data.Position] = playerChange(data.Player);
+            console.log('After', player);
+            
+            // Finalizes change by changing the rerendiring the local board of the receiving client
+            setBoard(prevBoard => boardCopy);
+        });
+    });
+    
+    // Accounts for the winner message or provides the satus of whose turn it is
+    const winner = calculateWinner(board);
+    let status;
+    if (winner) {
+        status = 'Winner: ' + winner;
+    }
+    else {
+        status = 'Next player: ' + player;
+    }
+
+    
     return (
         <div>
             <h1>{status}</h1>
