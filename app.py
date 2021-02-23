@@ -28,7 +28,7 @@ def on_login(userInfo):
     socketio.emit('usernameAdd',userInfo)
     socketio.emit('playerDefine',userQueue[0:2])
     
-    print('User Login!', userInfo)
+    print('User Login!\n', userInfo, '\n',userQueue)
 
 @socketio.on('userLogout')
 def on_logout(userInfo):
@@ -37,7 +37,7 @@ def on_logout(userInfo):
     socketio.emit('usernameRemove',userInfo)
     socketio.emit('playerDefine',userQueue[0:2])
     
-    print('User Logout!', userInfo)
+    print('\n\nUser Logout!\n', userInfo, '\n',userQueue)
 
 socketio.run(
     app,
