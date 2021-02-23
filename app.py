@@ -19,6 +19,13 @@ socketio = SocketIO(
 def index(filename):
     return send_from_directory('./build', filename)
 
+@socketio.on('userLogin')
+def on_login(userInfo):
+    print('User Login!')
+
+@socketio.on('userLogout')
+def on_logout(userInfo):
+    print('User Logout!')
 
 socketio.run(
     app,
