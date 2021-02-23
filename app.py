@@ -38,6 +38,14 @@ def on_logout(userInfo):
     socketio.emit('playerDefine',userQueue[0:2])
     
     print('\n\nUser Logout!\n', userInfo, '\n',userQueue)
+    
+@socketio.on('connect')
+def on_connect():
+    
+    socketio.emit('playerDefine',userQueue[0:2])
+    socketio.emit('userUpdate', userQueue)
+    
+    print('\n\nUser Connected\n', userQueue)
 
 socketio.run(
     app,
