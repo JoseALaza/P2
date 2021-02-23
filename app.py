@@ -1,4 +1,6 @@
 import os
+import copy
+import json
 from flask import Flask, send_from_directory, json, session
 from flask_socketio import SocketIO
 from flask_cors import CORS
@@ -13,8 +15,8 @@ socketio = SocketIO(
     json=json,
     manage_session=False
 )
-
-boardUpdate_data = None
+global boardUpdate_data
+boardUpdate_data = {}
 userQueue = []
 
 @app.route('/', defaults={"filename": "index.html"})
@@ -24,10 +26,13 @@ def index(filename):
 
 @socketio.on('userLogin')
 def on_login(userInfo):
+    global boardUpdate_data
+    
     userQueue.append(userInfo)
     
     socketio.emit('usernameAdd',userInfo)
     socketio.emit('playerDefine',userQueue[0:2])
+    socketio.emit('spectatorUpdate',  boardUpdate_data, broadcast=True, include_self=False)
     
     print('User Login!\n', userInfo, '\n',userQueue)
 
@@ -42,16 +47,20 @@ def on_logout(userInfo):
     
 @socketio.on('connect')
 def on_connect():
+    global boardUpdate_data
     
     socketio.emit('playerDefine',userQueue[0:2])
     socketio.emit('userUpdate', userQueue)
     socketio.emit('spectatorUpdate',  boardUpdate_data, broadcast=True, include_self=False)
-    print('\n\nUser Connected\n', userQueue)
+    print('\n\nUser Connected\n', userQueue, '\n', boardUpdate_data)
 
 @socketio.on('playerMove')
 def on_move(data):
-    print(data, 'Player details')
-    boardUpdate_data = data
+    global boardUpdate_data
+    print(data, 'Player move')
+    
+    boardUpdate_data = copy.deepcopy(data)
+    
     socketio.emit('boardUpdate',  data, broadcast=True, include_self=False)
     socketio.emit('spectatorUpdate',  data, broadcast=True, include_self=False)
     
