@@ -119,3 +119,88 @@ export function PlayerBoardCreate() {
 
     );
 }
+
+export function SpectatorBoardCreate() {
+    // Serves as a blank board that will only be used once
+    const boardBase = ['', '', '', '', '', '', '', '', ''];
+
+    // Creates a boardState that can be used to rerender when onClick is triggered
+    const [board, setBoard] = useState(boardBase);
+    
+    // Creates a player state to determine who's turn it is.(X is default player1)
+    const [player, setPlayer] = useState('X');
+    
+    // calculateWinner returns a Winner output based on the placement of pieces
+    function calculateWinner(squares) {
+        // Array with all possible positions for a winner
+        const lines = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6],
+        ];
+
+        // Loop will go through the array lines and cross check with the array squares to  determine a winner
+        for (let i = 0; i < lines.length; i++)
+
+            // Default returns null if there is no winner yet or a tie
+            // needs to account for a tie or create a seperate function
+            return null;
+    }
+    
+    // Updates local board storage on connect and any other update that comes in
+    // Listens for player move updates sent from the onClickSquare function
+    useEffect(() => {
+        socket.on('boardUpdate', (data) => { // Listens for boardUpdate from server
+            console.log('Player details received!');
+
+            // Creates a copy of the received data
+            let boardCopy = JSON.parse(JSON.stringify(board));
+            console.log(data, boardCopy);
+
+            // Exits when a winner is found not commiting to the change the user would have made
+            // May need to move location of this if there is an error detecting winner/tie
+            if (calculateWinner(board) || board[data.Position]) {
+                console.log('IN WINNER DETECT', calculateWinner(boardCopy), boardCopy[data.Position] );
+                return;
+            }
+
+            // Similiar to onClickSquare, updates the sent board with the move made by player
+            // May need to change as the logic points to the fact that the board does not actually change
+            // Iffy playerChange logic
+            boardCopy[data.Position] = data.Player;
+            
+            // Changes to opposite based on received player data to update status in render
+            setPlayer(data.Player == 'X' ? 'X' : 'O')
+
+            // Finalizes change by changing the rerendiring the local board of the receiving client
+            setBoard(prevBoard => boardCopy);
+        });
+    });
+    
+    // Accounts for the winner message or provides the satus of whose turn it is
+    const winner = calculateWinner(board);
+    let status;
+    if (winner) {
+        status = 'Winner: ' + winner;
+    }
+    else {
+        status = 'Next player: ' + player;
+    }
+
+
+    return (
+        <div>
+            <h1>{status}</h1>
+            <div class = "board" >
+                { board.map((item, val) => <Square key={val} idx={val} val={item} />) }
+            </div>
+        </div>
+
+    );
+    
+}
