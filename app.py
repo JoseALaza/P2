@@ -21,6 +21,12 @@ def index(filename):
     return send_from_directory('./build', filename)
 
 
+@socketio.on('playerMove')
+def on_move(data):
+    print(data, 'Player details')
+    socketio.emit('boardUpdate',  data, broadcast=True, include_self=False)
+
+
 socketio.run(
     app,
     host=os.getenv('IP', '0.0.0.0'),
