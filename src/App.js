@@ -7,7 +7,7 @@ const socket = io();
 let username;
 
 function App() {
-
+  
   // Serves to control the username of the current user. (could possibly use this as login state)
   const [user, setUser] = useState('')
 
@@ -20,6 +20,7 @@ function App() {
   // Local array that is updated via server to define who is player and spectator. Should be a max size of 2
   const [playerDef, updateDef] = useState([]);
 
+  console.log('\n\nPre Render:  ',playerDef)
 
   const usernameInput = useRef(null); // Serves to extract username textbox
 
@@ -62,6 +63,22 @@ function App() {
     socket.on('playerDefine', (data) => { // Listening for playerDefine from server
       console.log('Players allowed received!');
       updateDef(data); // Overwrite old array to update define
+    });
+
+    // Cleanup function. Not sure what could be done
+    return function cleanup() {
+      console.log('C')
+    };
+
+
+  }, []);
+  
+  // Listening for the server userUpdate response from server updating userList checking for repetitions.
+  // Should update based on everytime someone connects.
+  useEffect(() => {
+    socket.on('userUpdate', (data) => { // Listening for userUpdate from server
+      console.log('User database received!');
+      addUser(data); // Overwrite old array to update userList
     });
 
     // Cleanup function. Not sure what could be done
