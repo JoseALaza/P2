@@ -4,17 +4,17 @@ import io from 'socket.io-client';
 
 const socket = io();
 
-// Serves as a blank board that will only be used once
-const boardBase = ['', '', '', '', '', '', '', '', ''];
+export function PlayerBoardCreate() {
 
-// Creates a boardState that can be used to rerender when onClick is triggered
-const [board, setBoard] = useState(boardBase);
+    // Serves as a blank board that will only be used once
+    const boardBase = ['', '', '', '', '', '', '', '', ''];
 
-// Creates a player state to determine who's turn it is.(X is default player1)
-// Still needs work as to determine if the player is allowed to go
-const [player, setPlayer] = useState('X');
+    // Creates a boardState that can be used to rerender when onClick is triggered
+    const [board, setBoard] = useState(boardBase);
 
-export function playerBoardCreate() {
+    // Creates a player state to determine who's turn it is.(X is default player1)
+    // Still needs work as to determine if the player is allowed to go
+    const [player, setPlayer] = useState('X');
 
     // playerChange serves as a switch in order to give the other player their turn
     function playerChange(ply) {
@@ -76,12 +76,13 @@ export function playerBoardCreate() {
             console.log('Player details received!');
 
             // Creates a copy of the received data
-            let boardCopy = JSON.parse(JSON.stringify(data.Board));
+            let boardCopy = JSON.parse(JSON.stringify(board));
             console.log(data, boardCopy);
 
             // Exits when a winner is found not commiting to the change the user would have made
             // May need to move location of this if there is an error detecting winner/tie
-            if (calculateWinner(boardCopy) || boardCopy[data.Position]) {
+            if (calculateWinner(board) || board[data.Position]) {
+                console.log('IN WINNER DETECT', calculateWinner(boardCopy), boardCopy[data.Position] );
                 return;
             }
 
