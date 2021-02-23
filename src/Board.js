@@ -155,7 +155,7 @@ export function SpectatorBoardCreate() {
     // Updates local board storage on connect and any other update that comes in
     // Listens for player move updates sent from the onClickSquare function
     useEffect(() => {
-        socket.on('boardUpdate', (data) => { // Listens for boardUpdate from server
+        socket.on('spectatorUpdate', (data) => { // Listens for boardUpdate from server
             console.log('Player details received!');
 
             // Creates a copy of the received data

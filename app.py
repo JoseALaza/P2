@@ -15,6 +15,8 @@ socketio = SocketIO(
     manage_session=False
 )
 
+boardUpdate_data = None
+
 @app.route('/', defaults={"filename": "index.html"})
 @app.route('/<path:filename>')
 def index(filename):
@@ -24,7 +26,13 @@ def index(filename):
 @socketio.on('playerMove')
 def on_move(data):
     print(data, 'Player details')
+    boardUpdate_data = data
     socketio.emit('boardUpdate',  data, broadcast=True, include_self=False)
+    socketio.emit('spectatorUpdate',  data, broadcast=True, include_self=False)
+    
+@socketio.on('connect')
+def on_connect():
+    socketio.emit('spectatorUpdate',  boardUpdate_data, broadcast=True, include_self=False)
 
 
 socketio.run(
