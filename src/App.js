@@ -13,8 +13,13 @@ function App() {
 
   // 0 refers to the current user not logged in, 1 is the user already logged in
   const [loginState, setLogin] = useState(0)
-
-
+  
+  // Local array that is updated via server to maintain a total list of 'connected' users
+  const [userList, addUser] = useState([]);
+  
+  // Local array that is updated via server to define who is player and spectator
+  const [playerDef, updateDef] = useState([]);
+  
   const usernameInput = useRef(null); // Serves to extract username textbox
 
   // Button function for Login sending username to the current state.
@@ -23,6 +28,9 @@ function App() {
     if (usernameInput != null) {
       username = usernameInput.current.value;
       
+      socket.emit('userLogin', username) // Sends raw username string to server for proccessing
+      
+      // States used to determine user's log information
       setLogin(1);
       setUser(username);
     }
@@ -31,7 +39,9 @@ function App() {
   // Button functino for Logout removing username from state.
   // Resets loginState to render to Login Page
   function onClickLogout() {
-
+    socket.emit('userLogout', user); // Sends username of current user to serer for proccessing
+    
+    // States used to determine user's log information
     setLogin(0);
     setUser('');
   }
