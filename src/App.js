@@ -160,10 +160,10 @@ function App() {
     if (playerDef.includes(user)) { // Designates the user to the player page based on the first two in queue
       return (
         <div>
-          <h1>Logout page - {user} - player</h1>
+          <h1>Logout page - {user} - player {user == playerDef[0]?'X':'O'}</h1>
           <button onClick={onClickLogout}>Logout</button>
           <div id='info'>
-            <PlayerBoardCreate />
+            <PlayerBoardCreate playerOne_playerTwo={user == playerDef[0]?'X':'O'}/>
           </div>
         </div>
       );

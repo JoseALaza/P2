@@ -4,10 +4,11 @@ import io from 'socket.io-client';
 
 const socket = io();
 
-export function PlayerBoardCreate() {
+export function PlayerBoardCreate(props) {
 
-    
-    
+    // Gets correct player property from defUser list from server
+    const p1_p2 = props.playerOne_playerTwo;
+
     // Serves as a blank board that will only be used once
     const boardBase = ['', '', '', '', '', '', '', '', ''];
 
@@ -17,9 +18,9 @@ export function PlayerBoardCreate() {
     // Creates a player state to determine who's turn it is.(X is default player1)
     // Still needs work as to determine if the player is allowed to go
     const [player, setPlayer] = useState('X');
-    
+
     // Creates a tie counting as a tie is only possible when all 9 squares are filled
-    const [tieCounter,setTie] = useState(0);
+    const [tieCounter, setTie] = useState(0);
 
     // playerChange serves as a switch in order to give the other player their turn
     function playerChange(ply) {
@@ -62,23 +63,28 @@ export function PlayerBoardCreate() {
 
     // onClickSquare is passed down to the tiles and is the main driver of sending and receiving playerMoves
     function onClickSquare(a) {
-        // Creates a copy of the current boardState so that it can be subject to change
-        let boardCopy = JSON.parse(JSON.stringify(board));
+        if (p1_p2 == player) {
+            // Creates a copy of the current boardState so that it can be subject to change
+            let boardCopy = JSON.parse(JSON.stringify(board));
 
-        // Exits when a winner is found not commiting to the change the user would have made
-        // May need to move location of this if there is an error detecting winner/tie
-        if (calculateWinner(boardCopy) || boardCopy[a.target.id]) {
-            return;
+            // Exits when a winner is found not commiting to the change the user would have made
+            // May need to move location of this if there is an error detecting winner/tie
+            if (calculateWinner(boardCopy) || boardCopy[a.target.id]) {
+                return;
+            }
+
+            setTie(tieCounter + 1);
+            // Gets the tile index from the current tile and changes the value based on whose move it is.
+            // Finalizes the move by overwriting the board.
+            boardCopy[a.target.id] = playerChange(player);
+            setBoard(prevBoard => boardCopy);
+
+            // Sends move made by player to server with the player that made the move, tile index, and the board after change
+            socket.emit('playerMove', { 'Player': player, 'Position': parseInt(a.target.id), 'Board': boardCopy });
         }
-        
-        setTie(tieCounter+1);
-        // Gets the tile index from the current tile and changes the value based on whose move it is.
-        // Finalizes the move by overwriting the board.
-        boardCopy[a.target.id] = playerChange(player);
-        setBoard(prevBoard => boardCopy);
-
-        // Sends move made by player to server with the player that made the move, tile index, and the board after change
-        socket.emit('playerMove', { 'Player': player, 'Position': parseInt(a.target.id), 'Board': boardCopy });
+        else {
+            alert('Not your turn');
+        }
     }
 
     // Listens for player move updates sent from the onClickSquare function
@@ -96,9 +102,9 @@ export function PlayerBoardCreate() {
                 console.log('IN WINNER DETECT', calculateWinner(boardCopy), boardCopy[data.Position]);
                 return;
             }
-            
-            setTie(tieCounter+1);
-            
+
+            setTie(tieCounter + 1);
+
             console.log('Before', player);
             // Similiar to onClickSquare, updates the sent board with the move made by player
             // May need to change as the logic points to the fact that the board does not actually change
@@ -116,19 +122,19 @@ export function PlayerBoardCreate() {
     let status;
     if (winner) {
         status = 'Winner: ' + winner;
-        
+
         // setTie(0);
         console.log('Player - Winner');
     }
-    else if(tieCounter == 9) {
+    else if (tieCounter == 9) {
         status = 'Tie';
-        
+
         // setTie(0);
         console.log('Player - Tie');
     }
     else {
         status = 'Next player: ' + player;
-        
+
         // setTie(tieCounter+1);
         console.log('Player - Next');
     }
@@ -146,8 +152,8 @@ export function PlayerBoardCreate() {
 }
 
 export function SpectatorBoardCreate() {
-    
-    const [tieCounter,setTie] = useState(0);
+
+    const [tieCounter, setTie] = useState(0);
 
     // Serves as a blank board that will only be used once
     const boardBase = ['', '', '', '', '', '', '', '', ''];
@@ -201,9 +207,9 @@ export function SpectatorBoardCreate() {
                     console.log('IN WINNER DETECT', calculateWinner(dataCopy.Board), dataCopy.Board[dataCopy.Position]);
                     return;
                 }
-                
-                setTie(tieCounter+1);
-                
+
+                setTie(tieCounter + 1);
+
                 // Similiar to onClickSquare, updates the sent board with the move made by player
                 // May need to change as the logic points to the fact that the board does not actually change
                 // Iffy playerChange logic
