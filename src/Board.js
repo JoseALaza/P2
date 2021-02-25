@@ -6,7 +6,7 @@ const socket = io();
 
 export function PlayerBoardCreate() {
 
-    const [tieCounter,setTie] = useState(0);
+    
     
     // Serves as a blank board that will only be used once
     const boardBase = ['', '', '', '', '', '', '', '', ''];
@@ -17,6 +17,9 @@ export function PlayerBoardCreate() {
     // Creates a player state to determine who's turn it is.(X is default player1)
     // Still needs work as to determine if the player is allowed to go
     const [player, setPlayer] = useState('X');
+    
+    // Creates a tie counting as a tie is only possible when all 9 squares are filled
+    const [tieCounter,setTie] = useState(0);
 
     // playerChange serves as a switch in order to give the other player their turn
     function playerChange(ply) {
@@ -108,22 +111,24 @@ export function PlayerBoardCreate() {
         });
     });
 
-    console.log('TIE COUNTER:  ', tieCounter);
     // Accounts for the winner message or provides the satus of whose turn it is
     const winner = calculateWinner(board);
     let status;
     if (winner) {
         status = 'Winner: ' + winner;
+        
         // setTie(0);
         console.log('Player - Winner');
     }
     else if(tieCounter == 9) {
         status = 'Tie';
+        
         // setTie(0);
         console.log('Player - Tie');
     }
     else {
         status = 'Next player: ' + player;
+        
         // setTie(tieCounter+1);
         console.log('Player - Next');
     }
@@ -196,7 +201,9 @@ export function SpectatorBoardCreate() {
                     console.log('IN WINNER DETECT', calculateWinner(dataCopy.Board), dataCopy.Board[dataCopy.Position]);
                     return;
                 }
-
+                
+                setTie(tieCounter+1);
+                
                 // Similiar to onClickSquare, updates the sent board with the move made by player
                 // May need to change as the logic points to the fact that the board does not actually change
                 // Iffy playerChange logic
