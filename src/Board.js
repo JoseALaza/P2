@@ -135,6 +135,15 @@ export function PlayerBoardCreate(props) {
         });
     });
 
+    useEffect(() => {
+        socket.on('forfeit', (data) => { // Listening for userUpdate from server
+            console.log('Player Forfeit received!');
+            setBoard(['', '', '', '', '', '', '', '', '']);
+            setTie(0);
+            setPlayer('X'); // Overwrite old array to update userList
+        });
+    },[]);
+
     // Accounts for the winner message or provides the satus of whose turn it is
     const winner = calculateWinner(board);
     let status;

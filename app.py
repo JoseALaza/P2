@@ -40,10 +40,20 @@ def on_login(userInfo):
 
 @socketio.on('userLogout')
 def on_logout(userInfo):
+    global boardUpdate_data
+    
+    if boardUpdate_data:
+        if boardUpdate_data['Board'].count('')!=9 and userInfo in userQueue[0:2]:
+            socketio.emit('forfeit', userInfo)
+            boardUpdate_data = {}
+            print('PLAYER FORFEIT', userInfo)
+        
     userQueue.pop(userQueue.index(userInfo))
     
     socketio.emit('usernameRemove',userInfo)
     socketio.emit('playerDefine',userQueue[0:2])
+    
+    
     
     print('\n\nUser Logout!\n', userInfo, '\n',userQueue)
     
@@ -65,6 +75,8 @@ def on_move(data):
     
     socketio.emit('boardUpdate',  data, broadcast=True, include_self=False)
     socketio.emit('spectatorUpdate',  data, broadcast=True, include_self=False)
+    
+    print('ON MOVE',boardUpdate_data)
     
 @socketio.on('restart')
 def on_restart(data):

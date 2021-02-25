@@ -90,6 +90,17 @@ function App() {
 
 
   }, []);
+  
+  useEffect(() => {
+        socket.on('forfeit', (data) => { // Listening for userUpdate from server
+            console.log('Player Forfeit received! - App');
+            if (user != '') {
+              let mess = 'Player '+ user == playerDef[0]?' X ':' O ' +'\nUsername '+ data +' forfeited!';
+              alert('Player Forfeited!');
+              console.log('in Player Forfeit received! - App');
+            }
+        });
+    });
 
   // Array removal similiar to .pop()
   function itemRemove(arr, item) {
