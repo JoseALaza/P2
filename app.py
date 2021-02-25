@@ -15,6 +15,8 @@ socketio = SocketIO(
     json=json,
     manage_session=False
 )
+
+
 global boardUpdate_data
 boardUpdate_data = {}
 userQueue = []
@@ -64,6 +66,14 @@ def on_move(data):
     socketio.emit('boardUpdate',  data, broadcast=True, include_self=False)
     socketio.emit('spectatorUpdate',  data, broadcast=True, include_self=False)
     
+@socketio.on('restart')
+def on_restart(data):
+    global boardUpdate_data
+    
+    boardUpdate_data = {}
+    socketio.emit('restart',data)
+    
+    print('\n\nUser Restart\n', userQueue, '\n', boardUpdate_data)
 
 socketio.run(
     app,

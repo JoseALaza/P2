@@ -87,6 +87,14 @@ export function PlayerBoardCreate(props) {
         }
     }
 
+    // 
+    function onClickPlayAgain() {
+        setBoard(['', '', '', '', '', '', '', '', '']);
+        setTie(0);
+        setPlayer('X');
+        socket.emit('restart', boardBase);
+    }
+
     // Listens for player move updates sent from the onClickSquare function
     useEffect(() => {
         socket.on('boardUpdate', (data) => { // Listens for boardUpdate from server
@@ -114,6 +122,15 @@ export function PlayerBoardCreate(props) {
 
             // Finalizes change by changing the rerendiring the local board of the receiving client
             setBoard(prevBoard => boardCopy);
+        });
+    });
+
+    // Listens for a restart emit from server
+    useEffect(() => {
+        socket.on('restart', (data) => { // Listens for boardUpdate from server
+            setBoard(['', '', '', '', '', '', '', '', '']);
+            setTie(0);
+            setPlayer('X');
         });
     });
 
@@ -146,6 +163,12 @@ export function PlayerBoardCreate(props) {
             <div className = "board" >
                 { board.map((item, val) => <Square key={val} idx={val} val={item} onClick={onClickSquare}/>) }
             </div>
+            {winner?
+            <button onClick = {onClickPlayAgain}>Play Again</button>: null
+            }
+            {tieCounter==9?
+            <button onClick = {onClickPlayAgain}>Play Again</button>: null
+            }
         </div>
 
     );
@@ -205,6 +228,11 @@ export function SpectatorBoardCreate() {
             if (data.Position != null) {
                 if (calculateWinner(dataCopy.Board) || board[dataCopy.Position]) {
                     console.log('IN WINNER DETECT', calculateWinner(dataCopy.Board), dataCopy.Board[dataCopy.Position]);
+                    setPlayer(dataCopy.Player == 'X' ? 'O' : 'X');
+
+                    // Finalizes change by changing the rerendiring the local board of the receiving client
+                    setBoard(prevBoard => dataCopy.Board);
+
                     return;
                 }
 
@@ -221,6 +249,15 @@ export function SpectatorBoardCreate() {
                 // Finalizes change by changing the rerendiring the local board of the receiving client
                 setBoard(prevBoard => dataCopy.Board);
             }
+        });
+    });
+
+    // Updates local board to clear it after players press restart
+    useEffect(() => {
+        socket.on('restart', (data) => { // Listens for boardUpdate from server
+            setBoard(['', '', '', '', '', '', '', '', '']);
+            setTie(0);
+            setPlayer('X');
         });
     });
 
