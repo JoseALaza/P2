@@ -87,7 +87,8 @@ export function PlayerBoardCreate(props) {
         }
     }
 
-    // 
+    // onClickPlayAgain clears the board and restarts the game
+    // does not wait for the other player may need to do that
     function onClickPlayAgain() {
         setBoard(['', '', '', '', '', '', '', '', '']);
         setTie(0);
