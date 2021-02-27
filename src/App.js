@@ -1,6 +1,7 @@
 import './App.css';
 import './Board.css';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import ReactDOM from "react-dom";
 import io from 'socket.io-client';
 import { PlayerBoardCreate, SpectatorBoardCreate } from './Board.js';
 
@@ -9,6 +10,8 @@ const socket = io();
 let username;
 
 function App() {
+
+  console.log("ID: ", socket.id);
 
   // Serves to control the username of the current user. (could possibly use this as login state)
   const [user, setUser] = useState('');
@@ -22,7 +25,7 @@ function App() {
   // Local array that is updated via server to define who is player and spectator. Should be a max size of 2
   const [playerDef, updateDef] = useState([]);
 
-  console.log('\n\nPre Render:  ', playerDef);
+  console.log('\n\nPre Render:  ', userList);
 
   const usernameInput = useRef(null); // Serves to extract username textbox
 
@@ -90,17 +93,21 @@ function App() {
 
 
   }, []);
-  
+
   useEffect(() => {
-        socket.on('forfeit', (data) => { // Listening for userUpdate from server
-            console.log('Player Forfeit received! - App');
-            if (user != '') {
-              let mess = 'Player '+ user == playerDef[0]?' X ':' O ' +'\nUsername '+ data +' forfeited!';
-              alert('Player Forfeited!');
-              console.log('in Player Forfeit received! - App');
-            }
-        });
+    socket.on('forfeit', (data) => { // Listening for userUpdate from server
+      console.log('Player Forfeit received! - App');
+      if (user != '') {
+        alert('Player Forfeited!');
+        console.log('in Player Forfeit received! - App');
+      }
     });
+    
+    return function cleanup() {
+      socket.offAny('forfeit');
+    };
+    
+  },[]);
 
   // Array removal similiar to .pop()
   function itemRemove(arr, item) {
@@ -154,6 +161,22 @@ function App() {
     setUser('');
   }
 
+  useEffect(()=>{
+    window.addEventListener("beforeunload", onUnload);
+    
+    return () => {
+      window.removeEventListener("beforeunload", onUnload);
+    };
+    
+  });
+  
+  const onUnload = () => {
+    socket.emit("tabClose",user);
+    console.log("INSIDE onUnload");
+    window.fetch("/").then(r => console.log("working fine", r));
+  };
+  
+
   // Renders a login page to users by default
   if (!loginState) {
     return (
@@ -169,7 +192,7 @@ function App() {
   // Renders a logout page once a user has submitted a valid username
   if (loginState) {
     if (playerDef.includes(user)) { // Designates the user to the player page based on the first two in queue
-      if(playerDef.length == 1) {
+      if (playerDef.length == 1) {
         return (
           <div>
             <h1>Logout page - {user} - player {user == playerDef[0]?'X':'O'}</h1>
