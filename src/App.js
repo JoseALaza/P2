@@ -224,7 +224,7 @@ function App() {
       return (
         <div>
           <h1>Logout page - {user} - spectator</h1>
-          <h2>User {playerDef[0]} vs {playerDef[1]}</h2>
+          <h2>Users: X-{playerDef[0]} vs O-{playerDef[1]}</h2>
           <button onClick={onClickLogout}>Logout</button>
           <div id='info'>
             <SpectatorBoardCreate />
