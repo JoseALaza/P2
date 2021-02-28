@@ -11,7 +11,7 @@ let username;
 
 function App() {
 
-  
+
 
   // Serves to control the username of the current user. (could possibly use this as login state)
   const [user, setUser] = useState('');
@@ -25,7 +25,7 @@ function App() {
   // Local array that is updated via server to define who is player and spectator. Should be a max size of 2
   const [playerDef, updateDef] = useState([]);
 
-  console.log("PRELOAD",userList);
+  console.log("PRELOAD", userList);
 
   const usernameInput = useRef(null); // Serves to extract username textbox
 
@@ -33,7 +33,7 @@ function App() {
   // (Needs to be checked for errors as it could update twice for self user)
   useEffect(() => {
     socket.on('usernameAdd', (data) => { // Listening for usernameAdd from server
-       
+
       addUser(prev => [...prev, data]); // Updates userList array
     });
 
@@ -49,7 +49,7 @@ function App() {
   // (Needs to be checked for errors as it could update twice for self user)
   useEffect(() => {
     socket.on('usernameRemove', (data) => { // Listening for usernameAdd from server
-       
+
       addUser(prev => itemRemove(prev, data)); // Updates userList array with removal function
     });
 
@@ -66,7 +66,7 @@ function App() {
   // (Needs to be checked for errors as it could update twice for self user or may not update for self)
   useEffect(() => {
     socket.on('playerDefine', (data) => { // Listening for playerDefine from server
-        
+
       updateDef(data); // Overwrite old array to update define
     });
 
@@ -82,8 +82,8 @@ function App() {
   // Should update based on everytime someone connects.
   useEffect(() => {
     socket.on('userUpdate', (data) => { // Listening for userUpdate from server
-      console.log("USERUPDATE",data);  
-      addUser(prev=>data); // Overwrite old array to update userList
+      console.log("USERUPDATE", data);
+      addUser(prev => data); // Overwrite old array to update userList
     });
 
     // Cleanup function. Not sure what could be done
@@ -96,22 +96,22 @@ function App() {
 
   useEffect(() => {
     socket.on('forfeit', (data) => { // Listening for userUpdate from server
-        
+
       if (user != '') {
         alert('Player Forfeited!');
-          
+
       }
     });
-    
+
     return function cleanup() {
       socket.offAny('forfeit');
     };
-    
-  },[]);
+
+  }, []);
 
   // Array removal similiar to .pop()
   function itemRemove(arr, item) {
-      
+
     for (var i = 0; i < arr.length; i++) {
 
       if (arr[i] === item) {
@@ -120,7 +120,7 @@ function App() {
       }
 
     }
-      
+
     return arr;
   }
 
@@ -129,9 +129,9 @@ function App() {
   function onClickLogin() {
     // Checks that the user has inputed something and that the name is unique
     // Does not account for users entering the name at the same time or possibly resseting local list.
-    
-    console.log("ONCLICKLOGIN",userList);
-    
+
+    console.log("ONCLICKLOGIN", userList);
+
     if (usernameInput != null && userList.includes(usernameInput.current.value) === false && usernameInput.current.value != '') {
       username = usernameInput.current.value;
 
@@ -164,21 +164,43 @@ function App() {
     setUser('');
   }
 
-  useEffect(()=>{
-    window.addEventListener("beforeunload", onUnload);
-    
+  // useEffect(()=>{
+  //   window.addEventListener("beforeunload", onUnload);
+
+  //   return () => {
+  //     window.removeEventListener("beforeunload", onUnload);
+  //   };
+
+  // });
+
+  // const onUnload = () => {
+  //   socket.emit("tabClose",user);
+  //   console.log("INSIDE onUnload");
+  //   window.fetch("/").then(r => console.log("working fine", r));
+  // };
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', alertUser);
+    window.addEventListener('unload', handleTabClosing);
+    console.log("Before Return|", user, "|");
     return () => {
-      window.removeEventListener("beforeunload", onUnload);
+      console.log("In return|", user, "|");
+      window.removeEventListener('beforeunload', alertUser);
+      window.removeEventListener('unload', handleTabClosing);
     };
-    
   });
-  
-  const onUnload = () => {
-    socket.emit("tabClose",user);
-    console.log("INSIDE onUnload");
-    window.fetch("/").then(r => console.log("working fine", r));
+
+  const handleTabClosing = () => {
+    socket.emit("tabClose", user);
+    addUser(prev => itemRemove(prev, user));
+    console.log("IN HANDLE TAB CLOSING: |", user, "|", userList, "|");
   };
-  
+
+  const alertUser = (event) => {
+    event.preventDefault();
+    event.returnValue = '';
+  };
+
 
   // Renders a login page to users by default
   if (!loginState) {
