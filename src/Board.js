@@ -149,13 +149,14 @@ export function PlayerBoardCreate(props) {
     let status;
     if (winner) {
         status = 'Winner: ' + winner.Piece;
+        socket.emit("endState",{"Player":winner.Piece,"State":"WIN"});
 
         // setTie(0);
         console.log('Player - Winner');
     }
     else if (tieCounter == 9) {
         status = 'Tie';
-
+        socket.emit("endState",{"Player":null,"State":"TIE"});
         // setTie(0);
         console.log('Player - Tie');
     }
@@ -277,11 +278,13 @@ export function SpectatorBoardCreate() {
     let status;
     if (winner) {
         status = 'Winner: ' + winner.Piece;
+        socket.emit("endState",{"Player":winner.Piece,"State":"WIN"});
         // setTie(0);
         console.log('Spec-Winner');
     }
     else if (tieCounter == 9) {
         status = 'Tie';
+        socket.emit("endState",{"Player":winner.Piece,"State":"WIN"});
         // setTie(0);
         console.log('Spec-Tie');
     }

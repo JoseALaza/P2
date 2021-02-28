@@ -17,9 +17,10 @@ socketio = SocketIO(
 )
 
 
-global boardUpdate_data
+global boardUpdate_data, endState
 boardUpdate_data = {}
 userQueue = []
+endState = ""
 
 @app.route('/', defaults={"filename": "index.html"})
 @app.route('/<path:filename>')
@@ -40,9 +41,9 @@ def on_login(userInfo):
 
 @socketio.on('userLogout')
 def on_logout(userInfo):
-    global boardUpdate_data
+    global boardUpdate_data, endState
     
-    if boardUpdate_data:
+    if boardUpdate_data and endState == "":
         if boardUpdate_data['Board'].count('')!=9 and userInfo in userQueue[0:2]:
             socketio.emit('forfeit', userInfo)
             boardUpdate_data = {}
@@ -50,6 +51,7 @@ def on_logout(userInfo):
         
     userQueue.pop(userQueue.index(userInfo))
     
+    endState = ""
     socketio.emit('usernameRemove',userInfo)
     socketio.emit('playerDefine',userQueue[0:2])
     
@@ -57,14 +59,18 @@ def on_logout(userInfo):
     
     print('\n\nUser Logout!\n', userInfo, '\n',userQueue)
     
+@socketio.on('endState')
+def on_end(data):
+    global endState
+    endState = data["State"]
     
 @socketio.on('tabClose')
 def on_Close(userInfo):
-    global boardUpdate_data
+    global boardUpdate_data, endState
     
     print('\n\nUser Refresh/Close!\n', userInfo, '\n',userQueue)
     
-    if boardUpdate_data:
+    if boardUpdate_data and endState == "":
         if boardUpdate_data['Board'].count('')!=9 and userInfo in userQueue[0:2]:
             socketio.emit('forfeit', userInfo)
             boardUpdate_data = {}
@@ -72,6 +78,7 @@ def on_Close(userInfo):
         
     userQueue.pop(userQueue.index(userInfo))
     
+    endState = ""
     socketio.emit('usernameRemove',userInfo)
     socketio.emit('playerDefine',userQueue[0:2])
     
@@ -107,8 +114,9 @@ def on_move(data):
     
 @socketio.on('restart')
 def on_restart(data):
-    global boardUpdate_data
+    global boardUpdate_data, endState
     
+    endState = ""
     boardUpdate_data = {}
     socketio.emit('restart',data)
     
