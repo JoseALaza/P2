@@ -1,15 +1,108 @@
+body {
+  background-color: #1b262c;
+  color: #EEEEEE;
+  font-family: Verdana;
+}
+.page-container {
+  text-align: center;
+  font-size: 40px;
+  position: relative;
+  left: calc(50vw - 200px);
+  top: 20vh;
+  width: 400px;
+}
+.loginForm {
+  position: absolute;
+  top: 10vh;
+  width: 400px;
+  font-size: 20px;
+}
+input {
+  border-radius: 25px;
+  width: 180px;
+  height: 25px; 
+  margin: 0 5px 0 5px;
+  padding-left: 20px;
+}
+
+button {
+  font-size: 15px;
+}
+
+.userInfo {
+  display: flex;
+  width: 70vw;
+  position: absolute;
+  left: calc(50% - (70vw/2));
+  top: 5vh;
+}
+.player > div{
+  margin-right: 10vw !important;
+}
+.userInfo > div {
+  margin-right: 10vw;
+  font-size: 20px;
+}
+
+#info {
+  text-align: center;
+  position: absolute;
+  top: 10vh;
+  width: 400px;
+  left: calc(50% - 200px);
+}
+
+.userList {
+  font-size: 20px;
+  position: relative;
+  top: 65vh;
+  margin-left: 15vw;
+  width: 20%;
+  height: 30%;
+  max-height:40%;
+  line-height: 2;
+  overflow-y: auto;
+  
+}
+
+.playAgain {
+  margin: 10px;
+}
+
+
 .board {
 	width: 300px; /* Total horizontal dimensions */
 	height: 300px; /* Total vertical dimensions */
 	display: grid; /* Enables CSS Grid */ 
 	grid-template-columns: repeat(3, 1fr); /* Total horizontal space broken into 3 columns */
   grid-template-rows: repeat(3, 1fr); /* Total vertical space broken into 3 rows */
-  margin-left: 10vw;
-  margin-top: 10vh;
+  margin-left: calc(50% - 150px);
+  margin-top: 20%;
+  margin-bottom: 20%;
+  
 }
 
+.tile0, .tile1, .tile2 {
+  border-top: 0px !important;
+}
+.tile6, .tile7, .tile8 {
+  border-bottom: 0px !important;
+}
+.tile0, .tile3, .tile6 {
+  border-left: 0px !important;
+}
+.tile2, .tile5, .tile8 {
+  border-right: 0px !important;
+}
+
+
 .box {
-  border: 1px solid black; /* Shows the lines in the CSS grid */
+  font-size: 30px;
+  border: 1px solid #EEEEEE; /* Shows the lines in the CSS grid */
   text-align: center;
   line-height: 90px;
+}
+.winner {
+  background-color: #afa060;
+  color: black;
 }

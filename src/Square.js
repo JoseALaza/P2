@@ -5,7 +5,7 @@ export function Square(props) {
     
     // Renders a single square with index property at id, the passed down onClick function, and the associated value
     return ( 
-        <div className="box" id={props.idx} onClick={props.onClick}>
+        <div className={'box '+'tile'+props.idx} id={props.idx} onClick={props.onClick}>
             {props.val}
         </div>
     );

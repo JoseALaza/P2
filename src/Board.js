@@ -174,10 +174,10 @@ export function PlayerBoardCreate(props) {
                 { board.map((item, val) => <Square key={val} idx={val} val={item} onClick={onClickSquare}/>) }
             </div>
             {winner?
-            <button onClick = {onClickPlayAgain}>Play Again</button>: null
+            <button className="playAgain" onClick = {onClickPlayAgain}>Play Again</button>: null
             }
             {tieCounter==9?
-            <button onClick = {onClickPlayAgain}>Play Again</button>: null
+            <button className="playAgain" onClick = {onClickPlayAgain}>Play Again</button>: null
             }
         </div>
 

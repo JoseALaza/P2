@@ -163,16 +163,16 @@ function App() {
     setLogin(0);
     setUser('');
   }
-  
+
   function sleep(milliseconds) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
   }
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     window.addEventListener("beforeunload", onUnload);
 
     return () => {
@@ -180,17 +180,17 @@ function App() {
     };
 
   });
-  
+
   const onUnload = () => {
     socket.emit("tabClose", user);
     console.log("INSIDE onUnload");
     window.fetch("/").then(r => console.log("working fine", r));
   };
-  
 
-  
-  
-  
+
+
+
+
   // useEffect(() => {
   //   window.addEventListener('beforeunload', alertUser);
   //   window.addEventListener('unload', handleTabClosing);
@@ -218,11 +218,13 @@ function App() {
   // Renders a login page to users by default
   if (!loginState) {
     return (
-      <div>
-        <h1>Login page</h1>
+      <div className="page-container">
+        <div className="title">Tic Tac Toe</div>
+        <form className="loginForm">
         <label>Username:</label>
         <input type="text" ref={usernameInput} required/>
-        <button onClick={onClickLogin}>Send</button>
+        <button onClick={onClickLogin}>Login</button>
+        </form>
       </div>
     );
   }
@@ -233,40 +235,59 @@ function App() {
       if (playerDef.length == 1) {
         return (
           <div>
-            <h1>Logout page - {user} - player {user == playerDef[0]?'X':'O'}</h1>
+          <div className="userInfo">
+            <div>Logged in as: {user}</div>
+            <div>Playing as: {user == playerDef[0]?'X':'O'}</div>
             <button onClick={onClickLogout}>Logout</button>
+          </div>
+            
             <div id='info'>
-              Waiting for player
+              <h2>Waiting for player</h2>
             </div>
           </div>
         );
       }
-      return (
-        <div>
-          <h1>Logout page - {user} - player {user == playerDef[0]?'X':'O'}</h1>
-          <h2>Playing Against - {user != playerDef[0]?playerDef[0]:playerDef[1]}</h2>
-          <button onClick={onClickLogout}>Logout</button>
+      else {
+        return (
+          <div>
+          
+          <div className="userInfo player">
+            <div>Logged in as: {user}</div>
+            <div>Playing as: {user == playerDef[0]?'X':'O'}</div>
+            <div>Playing Against - {user != playerDef[0]?playerDef[0]:playerDef[1]}</div>
+            <button onClick={onClickLogout}>Logout</button>
+          </div>
+          
           <div id='info'>
             <PlayerBoardCreate playerOne_playerTwo={user == playerDef[0]?'X':'O'}/>
           </div>
-          <ul>
+          
+          <ol className="userList"> Connected Users
             {userList.map((item, index) => <li key={index}> {item} </li>)}
-          </ul>
+          </ol>
+          
         </div>
-      );
+        );
+      }
     }
     else { // Designates user to the spectator page. Should change when others logout
       return (
         <div>
-          <h1>Logout page - {user} - spectator</h1>
-          <h2>Users: X-{playerDef[0]} vs O-{playerDef[1]}</h2>
-          <button onClick={onClickLogout}>Logout</button>
+          <div className="userInfo spectator">
+            <div>Logged in as: {user}</div>
+            <div>Users: {playerDef[0]} as X vs {playerDef[1]} as O</div>
+            <div>Spectating</div>
+            <button onClick={onClickLogout}>Logout</button>
+          </div>
+          
           <div id='info'>
             <SpectatorBoardCreate />
           </div>
-          <ul>
+          
+          
+          <ol className="userList"> Connected Users
             {userList.map((item, index) => <li key={index}> {item} </li>)}
-          </ul>
+          </ol>
         </div>
       );
     }
