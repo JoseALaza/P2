@@ -163,43 +163,56 @@ function App() {
     setLogin(0);
     setUser('');
   }
+  
+  function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+  }
+  
+  useEffect(()=>{
+    window.addEventListener("beforeunload", onUnload);
 
-  // useEffect(()=>{
-  //   window.addEventListener("beforeunload", onUnload);
+    return () => {
+      window.removeEventListener("beforeunload", onUnload);
+    };
 
+  });
+  
+  const onUnload = () => {
+    socket.emit("tabClose", user);
+    console.log("INSIDE onUnload");
+    window.fetch("/").then(r => console.log("working fine", r));
+  };
+  
+
+  
+  
+  
+  // useEffect(() => {
+  //   window.addEventListener('beforeunload', alertUser);
+  //   window.addEventListener('unload', handleTabClosing);
+  //   console.log("Before Return|", user, "|");
   //   return () => {
-  //     window.removeEventListener("beforeunload", onUnload);
+  //     console.log("In return|", user, "|");
+  //     window.removeEventListener('beforeunload', alertUser);
+  //     window.removeEventListener('unload', handleTabClosing);
   //   };
-
   // });
 
-  // const onUnload = () => {
-  //   socket.emit("tabClose",user);
-  //   console.log("INSIDE onUnload");
-  //   window.fetch("/").then(r => console.log("working fine", r));
+  // const handleTabClosing = () => {
+  //   setTimeout(() => {  co}, 2000);nsole.log("World!"); 
+  //   socket.emit("tabClose", user);
+  //   addUser(prev => itemRemove(prev, user));
+  //   console.log("IN HANDLE TAB CLOSING: |", user, "|", userList, "|");
   // };
 
-  useEffect(() => {
-    window.addEventListener('beforeunload', alertUser);
-    window.addEventListener('unload', handleTabClosing);
-    console.log("Before Return|", user, "|");
-    return () => {
-      console.log("In return|", user, "|");
-      window.removeEventListener('beforeunload', alertUser);
-      window.removeEventListener('unload', handleTabClosing);
-    };
-  });
-
-  const handleTabClosing = () => {
-    socket.emit("tabClose", user);
-    addUser(prev => itemRemove(prev, user));
-    console.log("IN HANDLE TAB CLOSING: |", user, "|", userList, "|");
-  };
-
-  const alertUser = (event) => {
-    event.preventDefault();
-    event.returnValue = '';
-  };
+  // const alertUser = (event) => {
+  //   event.preventDefault();
+  //   event.returnValue = '';
+  // };
 
 
   // Renders a login page to users by default
