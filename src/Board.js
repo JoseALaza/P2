@@ -52,7 +52,7 @@ export function PlayerBoardCreate(props) {
         for (let i = 0; i < lines.length; i++) {
             const [a, b, c] = lines[i];
             if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-                return squares[a];
+                return {"Piece":squares[a], "Line":lines[i]};
             }
         }
 
@@ -148,7 +148,7 @@ export function PlayerBoardCreate(props) {
     const winner = calculateWinner(board);
     let status;
     if (winner) {
-        status = 'Winner: ' + winner;
+        status = 'Winner: ' + winner.Piece;
 
         // setTie(0);
         console.log('Player - Winner');
@@ -171,7 +171,7 @@ export function PlayerBoardCreate(props) {
         <div>
             <h1>{status}</h1>
             <div className = "board" >
-                { board.map((item, val) => <Square key={val} idx={val} val={item} onClick={onClickSquare}/>) }
+                { board.map((item, val) => <Square winner={winner?winner.Line:null} key={val} idx={val} val={item} onClick={onClickSquare}/>) }
             </div>
             {winner?
             <button className="playAgain" onClick = {onClickPlayAgain}>Play Again</button>: null
@@ -215,7 +215,7 @@ export function SpectatorBoardCreate() {
         for (let i = 0; i < lines.length; i++) {
             const [a, b, c] = lines[i];
             if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-                return squares[a];
+                return {"Piece":squares[a], "Line":lines[i]};
             }
         }
         // Default returns null if there is no winner yet or a tie
@@ -276,7 +276,7 @@ export function SpectatorBoardCreate() {
     const winner = calculateWinner(board);
     let status;
     if (winner) {
-        status = 'Winner: ' + winner;
+        status = 'Winner: ' + winner.Piece;
         // setTie(0);
         console.log('Spec-Winner');
     }
@@ -296,7 +296,7 @@ export function SpectatorBoardCreate() {
         <div>
             <h1>{status}</h1>
             <div className = "board" >
-                { board.map((item, val) => <Square key={val} idx={val} val={item} />) }
+                { board.map((item, val) => <Square winner={winner?winner.Line:null} key={val} idx={val} val={item} />) }
             </div>
         </div>
 
