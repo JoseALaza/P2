@@ -75,12 +75,13 @@ def on_Close(userInfo):
             socketio.emit('forfeit', userInfo)
             boardUpdate_data = {}
             print('PLAYER FORFEIT', userInfo)
-        
-    userQueue.pop(userQueue.index(userInfo))
     
-    endState = ""
-    socketio.emit('usernameRemove',userInfo)
-    socketio.emit('playerDefine',userQueue[0:2])
+    if userInfo != '':    
+        userQueue.pop(userQueue.index(userInfo))
+        
+        endState = ""
+        socketio.emit('usernameRemove',userInfo)
+        socketio.emit('playerDefine',userQueue[0:2])
     
     
     

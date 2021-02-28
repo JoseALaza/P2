@@ -11,7 +11,13 @@ let username;
 
 function App() {
 
-
+  window.onload = function() {
+    if(!window.location.hash) {
+        console.log("RELOAD");
+        window.location = window.location + '#loaded';
+        window.location.reload();
+    }
+  };
 
   // Serves to control the username of the current user. (could possibly use this as login state)
   const [user, setUser] = useState('');
